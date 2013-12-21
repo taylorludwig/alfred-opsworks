@@ -136,7 +136,7 @@ def get_instance_icon(status)
   case status
   when "online", "successful"
     return "icons/online.png"
-  when "launcing", "pending", "booting", "running_setup"
+  when "launcing", "pending", "booting", "running_setup", "running"
     return "icons/launching.png"
   when "shutting_down", "terminating"
     return "icons/shutting_down.png"
