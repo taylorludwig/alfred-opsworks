@@ -39,7 +39,7 @@ Alfred.with_friendly_error do |alfred|
           fb.add_item({
             :uid      => "#{instance["InstanceId"]}" ,
             :title    => "#{name}",
-            :subtitle => "#{stopped ? "stopped" : ip} #{instance["AvailabilityZone"]}",
+            :subtitle => "#{ip} #{instance["Status"]} #{instance["InstanceType"]} #{instance["AvailabilityZone"]}",
             :arg      => "#{ip}" ,
             :valid    => stopped ? "no" : "yes",
             :autocomplete => ARGV.first,

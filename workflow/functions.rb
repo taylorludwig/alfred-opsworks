@@ -33,7 +33,7 @@ end
 
 def get_stacks(alfred)
   settings = get_settings(alfred)
-  cache = FileCache.new("stacks", alfred.volatile_storage_path, settings["cache_length"])
+  cache = FileCache.new("stacks", alfred.volatile_storage_path, Integer(settings["cache_length"]))
   cached_stacks = cache.get("#{settings["profile"]}")
   if !cached_stacks
     res = `#{settings["aws_path"]} opsworks describe-stacks --profile #{settings["profile"]} 2>&1`
@@ -57,7 +57,7 @@ end
 
 def get_intances(stack_id, alfred)
   settings = get_settings(alfred)
-  cache = FileCache.new("instances", alfred.volatile_storage_path, settings["cache_length"])
+  cache = FileCache.new("instances", alfred.volatile_storage_path, Integer(settings["cache_length"]))
   cached_instances = cache.get(stack_id)
   if !cached_instances
     res = `#{settings["aws_path"]} opsworks describe-instances --stack-id #{stack_id} --profile #{settings["profile"]} 2>&1`
@@ -111,9 +111,9 @@ def get_instance_icon(status)
   case status
   when "online"
     return "icons/online.png"
-  when "launcing"
+  when "launcing", "pending", "booting", "running_setup"
     return "icons/launching.png"
-  when "shutting_down"
+  when "shutting_down", "terminating"
     return "icons/shutting_down.png"
   when "stopped"
     return "icons/stopped.png"
