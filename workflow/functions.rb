@@ -31,14 +31,12 @@ rescue JSON::ParserError
   return false
 end
 
-def run_command(alfred, command, stack_id=nil, deployment_id=nil)
+def run_command(alfred, command, filter=nil)
   settings = get_settings(alfred)
-  cache = FileCache.new("#{command}-#{stack_id}-#{deployment_id}", alfred.volatile_storage_path, Integer(settings["cache_length"]))
+  cache = FileCache.new("#{command}-#{filter}", alfred.volatile_storage_path, Integer(settings["cache_length"]))
   cached_res = cache.get("#{settings["profile"]}")
   if !cached_res
-    stack_arg = stack_id ? "--stack-id #{stack_id}" : ""
-    deployment_arg = deployment_id ? "--deployment-ids #{deployment_id}" : ""
-    res = `#{settings["aws_path"]} opsworks #{command} #{stack_arg} #{deployment_arg} --profile #{settings["profile"]} 2>&1`
+    res = `#{settings["aws_path"]} opsworks #{command} #{filter} --profile #{settings["profile"]} 2>&1`
     if !valid_json? res
       raise res
     end
@@ -80,7 +78,7 @@ def populate_stack_feedback(fb, stacks)
 end
 
 def get_intances(stack_id, alfred)
-  instances = run_command(alfred, "describe-instances", stack_id)
+  instances = run_command(alfred, "describe-instances", "--stack-id #{stack_id}")
   res = Hash.new
   instances["Instances"].each { |instance|
     res["#{instance["Hostname"]}"] = instance
@@ -90,7 +88,7 @@ def get_intances(stack_id, alfred)
 end
 
 def get_deployments(stack_id, alfred)
-  deployments = run_command(alfred, "describe-deployments", stack_id)
+  deployments = run_command(alfred, "describe-deployments", "--stack-id #{stack_id}")
   res = Hash.new
   deployments["Deployments"].each { |deployment|
     res["#{deployment["DeploymentId"]}"] = deployment
@@ -100,8 +98,13 @@ def get_deployments(stack_id, alfred)
 end
 
 def get_deployment(deployment_id, alfred)
-  deployment = run_command(alfred, "describe-deployments", nil, deployment_id)
+  deployment = run_command(alfred, "describe-deployments", "--deployment-ids #{deployment_id}")
   JSON.pretty_generate(deployment['Deployments'][0])
+end
+
+def get_app_name(app_id, alfred)
+  app = run_command(alfred, "describe-apps", "--app-ids #{app_id}")
+  app['Apps'][0]['Name']
 end
 
 def get_stack_icon(color)
