@@ -1,7 +1,7 @@
 $default_settings = {
   'aws_path'     => '/usr/local/bin/aws',
   'profile'      => 'default',
-  'cache_length' => 3600
+  'cache_length' => 30
 }
 
 def get_settings(alfred)
