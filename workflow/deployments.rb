@@ -59,7 +59,7 @@ Alfred.with_friendly_error do |alfred|
         if deployments.empty?
           fb.add_item({
             :uid      => "" ,
-            :title    => "Empty Stack #{ARGV.first}",
+            :title    => "Empty Deployments #{ARGV.first}",
             :subtitle => "",
             :valid    => "no",
             :icon     => {:type => "default", :name => get_instance_icon("error") }

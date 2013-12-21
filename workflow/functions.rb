@@ -1,3 +1,5 @@
+require 'digest/md5'
+
 $default_settings = {
   'aws_path'     => '/usr/local/bin/aws',
   'profile'      => 'default',
@@ -33,8 +35,9 @@ end
 
 def run_command(alfred, command, filter=nil)
   settings = get_settings(alfred)
-  cache = FileCache.new("#{command}-#{filter}", alfred.volatile_storage_path, Integer(settings["cache_length"]))
-  cached_res = cache.get("#{settings["profile"]}")
+  hash = Digest::MD5.hexdigest("#{command}-#{filter}")
+  cache = FileCache.new("#{settings["profile"]}", alfred.volatile_storage_path, Integer(settings["cache_length"]))
+  cached_res = cache.get(hash)
   if !cached_res
     res = `#{settings["aws_path"]} opsworks #{command} #{filter} --profile #{settings["profile"]} 2>&1`
     if !valid_json? res
@@ -43,7 +46,7 @@ def run_command(alfred, command, filter=nil)
 
     res = JSON.parse(res)
 
-    cache.set("#{settings["profile"]}", res)
+    cache.set(hash, res)
   else
     res = cached_res
   end
@@ -105,6 +108,21 @@ end
 def get_app_name(app_id, alfred)
   app = run_command(alfred, "describe-apps", "--app-ids #{app_id}")
   app['Apps'][0]['Name']
+end
+
+def get_instances(intances_ids, alfred)
+  instances = run_command(alfred, "describe-instances", "--instance-ids #{intances_ids.join(" ")}")
+  res = Hash.new
+  instances["Instances"].each { |instance|
+    res["#{instance["InstanceId"]}"] = instance
+  }
+
+  res
+end
+
+def get_commands(deployment_id, alfred)
+  res = run_command(alfred, "describe-commands", "--deployment-id #{deployment_id}")
+  res['Commands']
 end
 
 def get_stack_icon(color)
