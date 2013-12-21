@@ -28,10 +28,24 @@ Alfred.with_friendly_error do |alfred|
             name = "#{name}: #{deployment["Command"]["Args"]["recipes"].join(',')}"
           end
 
+          if deployment.has_key?("IamUserArn")
+            match = deployment["IamUserArn"].match('user/(.*)$')
+            author = match ? match[1] : "Unknown"
+          else
+            author = "OpsWorks"
+          end
+
+          if deployment.has_key?("Comment")
+            author += ": #{deployment["Comment"]}"
+          end
+
+          time = distance_of_time_in_words(DateTime.strptime(deployment['CreatedAt'], '%Y-%m-%dT%H:%M:%S%z'))
+          instances = deployment["InstanceIds"].size
+
           fb.add_item({
             :uid      => "#{id}" ,
             :title    => "#{name}",
-            :subtitle => "#{deployment["Status"]}",
+            :subtitle => "#{time} ago: #{instances} Instances: #{author}",
             :arg      => "#{id}" ,
             :valid    => "yes",
             :icon     => {:type => "default", :name => get_instance_icon(deployment["Status"]) }

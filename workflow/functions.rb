@@ -100,7 +100,8 @@ def get_deployments(stack_id, alfred)
 end
 
 def get_deployment(deployment_id, alfred)
-  JSON.pretty_generate(run_command(alfred, "describe-deployments", nil, deployment_id))
+  deployment = run_command(alfred, "describe-deployments", nil, deployment_id)
+  JSON.pretty_generate(deployment['Deployments'][0])
 end
 
 def get_stack_icon(color)
@@ -147,4 +148,60 @@ def get_instance_icon(status)
     return "icons/error.png"
   end
 
+end
+
+def distance_of_time_in_words(from_time, to_time = Time.now, include_seconds = true)
+
+  from_time = from_time.to_time if from_time.respond_to?(:to_time)
+  to_time = to_time.to_time if to_time.respond_to?(:to_time)
+  distance = (to_time.to_f - from_time.to_f).abs
+  distance_in_minutes = (distance / 60.0).round
+  distance_in_seconds = distance.round
+
+
+  case distance_in_minutes
+    when 0..1
+      return distance_in_minutes == 0 ?
+             "Less than 1 minute" : "#{distance_in_minutes} minutes" unless include_seconds
+
+      case distance_in_seconds
+        when 0..4   then "Less than 5 seconds"
+        when 5..9   then "Less than 10 seconds"
+        when 10..19 then "Less than 20 seconds"
+        when 20..39 then "Half a minute"
+        when 40..59 then "Less than 1 minute"
+        else             "1 minute"
+      end
+
+    when 2..44           then "#{distance_in_minutes} minutes"
+    when 45..89          then "About 1 hour"
+    when 90..1439        then "About #{(distance_in_minutes.to_f / 60.0).round} hours"
+    when 1440..2519      then "1 day"
+    when 2520..43199     then "#{(distance_in_minutes.to_f / 1440.0).round} days"
+    when 43200..86399    then "About 1 month"
+    when 86400..525599   then "#{(distance_in_minutes.to_f / 43200.0).round} months"
+    else
+      fyear = from_time.year
+      fyear += 1 if from_time.month >= 3
+      tyear = to_time.year
+      tyear -= 1 if to_time.month < 3
+      leap_years = (fyear > tyear) ? 0 : (fyear..tyear).count{|x| Date.leap?(x)}
+      minute_offset_for_leap_year = leap_years * 1440
+      # Discount the leap year days when calculating year distance.
+      # e.g. if there are 20 leap year days between 2 dates having the same day
+      # and month then the based on 365 days calculation
+      # the distance in years will come out to over 80 years when in written
+      # english it would read better as about 80 years.
+      minutes_with_offset         = distance_in_minutes - minute_offset_for_leap_year
+      remainder                   = (minutes_with_offset % 525600)
+      distance_in_years           = (minutes_with_offset / 525600)
+      if remainder < 131400
+        "About #{distance_in_years} years"
+      elsif remainder < 394200
+        "Over #{distance_in_years} years"
+      else
+        "Almost #{distance_in_years + 1} years"
+      end
+
+  end
 end
