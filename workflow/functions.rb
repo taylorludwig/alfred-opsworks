@@ -31,52 +31,76 @@ rescue JSON::ParserError
   return false
 end
 
-def get_stacks(alfred)
+def run_command(alfred, command, stack_id=nil, deployment_id=nil)
   settings = get_settings(alfred)
-  cache = FileCache.new("stacks", alfred.volatile_storage_path, Integer(settings["cache_length"]))
-  cached_stacks = cache.get("#{settings["profile"]}")
-  if !cached_stacks
-    res = `#{settings["aws_path"]} opsworks describe-stacks --profile #{settings["profile"]} 2>&1`
+  cache = FileCache.new("#{command}-#{stack_id}-#{deployment_id}", alfred.volatile_storage_path, Integer(settings["cache_length"]))
+  cached_res = cache.get("#{settings["profile"]}")
+  if !cached_res
+    stack_arg = stack_id ? "--stack-id #{stack_id}" : ""
+    deployment_arg = deployment_id ? "--deployment-ids #{deployment_id}" : ""
+    res = `#{settings["aws_path"]} opsworks #{command} #{stack_arg} #{deployment_arg} --profile #{settings["profile"]} 2>&1`
     if !valid_json? res
       raise res
     end
 
-    stacks = JSON.parse(res)
-    indexed_stacks = Hash.new
-    stacks["Stacks"].each { |stack|
-      indexed_stacks[stack["Name"].tr(' ', '-')] = stack
-    }
+    res = JSON.parse(res)
 
-    cache.set("#{settings["profile"]}", indexed_stacks)
+    cache.set("#{settings["profile"]}", res)
   else
-    indexed_stacks = cached_stacks
+    res = cached_res
   end
 
-  indexed_stacks
+  res
+end
+
+def get_stacks(alfred)
+  stacks = run_command(alfred, "describe-stacks")
+  res = Hash.new
+  stacks["Stacks"].each { |stack|
+    res[stack["Name"].tr(' ', '-')] = stack
+  }
+
+  res
+end
+
+def populate_stack_feedback(fb, stacks)
+  stacks.each { |name, stack|
+
+    fb.add_item({
+      :uid      => "#{stack["StackId"]}" ,
+      :title    => "#{name}",
+      :subtitle => "OpsWorks Stack #{name}",
+      :arg      => "#{name}" ,
+      :valid    => "no",
+      :autocomplete => "#{name} ",
+      :icon     => {:type => "default", :name => get_stack_icon(stack["Attributes"]["Color"]) }
+    })
+  }
+
 end
 
 def get_intances(stack_id, alfred)
-  settings = get_settings(alfred)
-  cache = FileCache.new("instances", alfred.volatile_storage_path, Integer(settings["cache_length"]))
-  cached_instances = cache.get(stack_id)
-  if !cached_instances
-    res = `#{settings["aws_path"]} opsworks describe-instances --stack-id #{stack_id} --profile #{settings["profile"]} 2>&1`
-    if !valid_json? res
-      raise res
-    end
+  instances = run_command(alfred, "describe-instances", stack_id)
+  res = Hash.new
+  instances["Instances"].each { |instance|
+    res["#{instance["Hostname"]}"] = instance
+  }
 
-    instances = JSON.parse(res)
-    indexed_instances = Hash.new
-    instances["Instances"].each { |instance|
-      indexed_instances["#{instance["Hostname"]}"] = instance
-    }
+  res
+end
 
-    cache.set(stack_id, indexed_instances)
-  else
-    indexed_instances = cached_instances
-  end
+def get_deployments(stack_id, alfred)
+  deployments = run_command(alfred, "describe-deployments", stack_id)
+  res = Hash.new
+  deployments["Deployments"].each { |deployment|
+    res["#{deployment["DeploymentId"]}"] = deployment
+  }
 
-  indexed_instances
+  res
+end
+
+def get_deployment(deployment_id, alfred)
+  JSON.pretty_generate(run_command(alfred, "describe-deployments", nil, deployment_id))
 end
 
 def get_stack_icon(color)
@@ -109,7 +133,7 @@ end
 def get_instance_icon(status)
 
   case status
-  when "online"
+  when "online", "successful"
     return "icons/online.png"
   when "launcing", "pending", "booting", "running_setup"
     return "icons/launching.png"

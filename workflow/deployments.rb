@@ -20,23 +20,25 @@ Alfred.with_friendly_error do |alfred|
 
     else
         stack = stacks[ARGV.first]
-        instances = get_intances(stack["StackId"], alfred)
+        deployments = get_deployments(stack["StackId"], alfred)
 
-        instances.each { |name, instance|
-          ip = instance.has_key?("PublicIp") ? instance["PublicIp"] : instance["PrivateIp"]
-          stopped = instance["Status"] == "stopped"
+        deployments.each { |id, deployment|
+          name = deployment["Command"]["Name"]
+          if name == "execute_recipes"
+            name = "#{name}: #{deployment["Command"]["Args"]["recipes"].join(',')}"
+          end
+
           fb.add_item({
-            :uid      => "#{instance["InstanceId"]}" ,
+            :uid      => "#{id}" ,
             :title    => "#{name}",
-            :subtitle => "#{ip} #{instance["Status"]} #{instance["InstanceType"]} #{instance["AvailabilityZone"]}",
-            :arg      => "#{ip}" ,
-            :valid    => stopped ? "no" : "yes",
-            :autocomplete => ARGV.first,
-            :icon     => {:type => "default", :name => get_instance_icon(instance["Status"]) }
+            :subtitle => "#{deployment["Status"]}",
+            :arg      => "#{id}" ,
+            :valid    => "yes",
+            :icon     => {:type => "default", :name => get_instance_icon(deployment["Status"]) }
           })
         }
 
-        if instances.empty?
+        if deployments.empty?
           fb.add_item({
             :uid      => "" ,
             :title    => "Empty Stack #{ARGV.first}",
