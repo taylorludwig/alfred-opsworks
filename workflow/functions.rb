@@ -105,6 +105,10 @@ def get_deployment(deployment_id, alfred)
   JSON.pretty_generate(deployment['Deployments'][0])
 end
 
+def get_command(command_id, alfred)
+  run_command(alfred, "describe-commands", "--command-ids #{command_id}")
+end
+
 def get_app_name(app_id, alfred)
   app = run_command(alfred, "describe-apps", "--app-ids #{app_id}")
   app['Apps'][0]['Name']

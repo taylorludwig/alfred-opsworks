@@ -37,7 +37,7 @@ Alfred.with_friendly_error do |alfred|
         :uid      => "#{command["CommandId"]}",
         :title    => "#{name}",
         :subtitle => "#{time} ago",
-        :arg      => "#{command["LogUrl"]}",
+        :arg      => "#{command["CommandId"]}",
         :valid    => "yes",
         :icon     => {:type => "default", :name => get_instance_icon(command["Status"]) }
       })

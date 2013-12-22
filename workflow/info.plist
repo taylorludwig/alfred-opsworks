@@ -46,6 +46,8 @@
 				<string>Copy and Paste</string>
 			</dict>
 		</array>
+		<key>361C2D93-D6A1-4B01-98B7-5AF0883E5E01</key>
+		<array/>
 		<key>831E6D4F-0EEE-4585-BEA6-43DA5EA200A7</key>
 		<array>
 			<dict>
@@ -69,7 +71,26 @@
 		<array>
 			<dict>
 				<key>destinationuid</key>
-				<string>E8AE46D7-53D7-4A2B-9913-A338F3D54CF4</string>
+				<string>8B1BA5BA-8F3F-47C9-9327-E7F28E81C5C7</string>
+				<key>modifiers</key>
+				<integer>131072</integer>
+				<key>modifiersubtext</key>
+				<string>View JSON output</string>
+			</dict>
+			<dict>
+				<key>destinationuid</key>
+				<string>361C2D93-D6A1-4B01-98B7-5AF0883E5E01</string>
+				<key>modifiers</key>
+				<integer>0</integer>
+				<key>modifiersubtext</key>
+				<string></string>
+			</dict>
+		</array>
+		<key>8B1BA5BA-8F3F-47C9-9327-E7F28E81C5C7</key>
+		<array>
+			<dict>
+				<key>destinationuid</key>
+				<string>A0C9C431-C5AC-4EDF-9002-902C57F80095</string>
 				<key>modifiers</key>
 				<integer>0</integer>
 				<key>modifiersubtext</key>
@@ -361,14 +382,6 @@
 			<integer>0</integer>
 		</dict>
 		<dict>
-			<key>type</key>
-			<string>alfred.workflow.output.largetype</string>
-			<key>uid</key>
-			<string>A0C9C431-C5AC-4EDF-9002-902C57F80095</string>
-			<key>version</key>
-			<integer>0</integer>
-		</dict>
-		<dict>
 			<key>config</key>
 			<dict>
 				<key>escaping</key>
@@ -386,19 +399,27 @@
 			<integer>0</integer>
 		</dict>
 		<dict>
+			<key>type</key>
+			<string>alfred.workflow.output.largetype</string>
+			<key>uid</key>
+			<string>A0C9C431-C5AC-4EDF-9002-902C57F80095</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
 			<key>config</key>
 			<dict>
-				<key>plusspaces</key>
-				<false/>
-				<key>url</key>
-				<string>{query}</string>
-				<key>utf8</key>
-				<true/>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>script</key>
+				<string>/usr/bin/ruby ./command.rb {query}</string>
+				<key>type</key>
+				<integer>0</integer>
 			</dict>
 			<key>type</key>
-			<string>alfred.workflow.action.openurl</string>
+			<string>alfred.workflow.action.script</string>
 			<key>uid</key>
-			<string>E8AE46D7-53D7-4A2B-9913-A338F3D54CF4</string>
+			<string>8B1BA5BA-8F3F-47C9-9327-E7F28E81C5C7</string>
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
@@ -431,6 +452,23 @@
 			<key>version</key>
 			<integer>0</integer>
 		</dict>
+		<dict>
+			<key>config</key>
+			<dict>
+				<key>escaping</key>
+				<integer>127</integer>
+				<key>script</key>
+				<string>open `/usr/bin/ruby command_log.rb {query}`</string>
+				<key>type</key>
+				<integer>0</integer>
+			</dict>
+			<key>type</key>
+			<string>alfred.workflow.action.script</string>
+			<key>uid</key>
+			<string>361C2D93-D6A1-4B01-98B7-5AF0883E5E01</string>
+			<key>version</key>
+			<integer>0</integer>
+		</dict>
 	</array>
 	<key>readme</key>
 	<string></string>
@@ -456,6 +494,11 @@
 			<key>ypos</key>
 			<real>790</real>
 		</dict>
+		<key>361C2D93-D6A1-4B01-98B7-5AF0883E5E01</key>
+		<dict>
+			<key>ypos</key>
+			<real>1330</real>
+		</dict>
 		<key>53341448-6742-49C0-9355-0851C2E7FFE1</key>
 		<dict>
 			<key>ypos</key>
@@ -474,12 +517,17 @@
 		<key>875C945E-CA9E-46E2-88FF-490272063D85</key>
 		<dict>
 			<key>ypos</key>
+			<real>1240</real>
+		</dict>
+		<key>8B1BA5BA-8F3F-47C9-9327-E7F28E81C5C7</key>
+		<dict>
+			<key>ypos</key>
 			<real>1210</real>
 		</dict>
 		<key>A0C9C431-C5AC-4EDF-9002-902C57F80095</key>
 		<dict>
 			<key>ypos</key>
-			<real>1090</real>
+			<real>1100</real>
 		</dict>
 		<key>AE0B8507-87A5-4D43-A2EA-63072541815F</key>
 		<dict>
@@ -500,11 +548,6 @@
 		<dict>
 			<key>ypos</key>
 			<real>360</real>
-		</dict>
-		<key>E8AE46D7-53D7-4A2B-9913-A338F3D54CF4</key>
-		<dict>
-			<key>ypos</key>
-			<real>1210</real>
 		</dict>
 		<key>EE7EE9F6-0755-448F-A19A-92410CA085B4</key>
 		<dict>
