@@ -43,13 +43,17 @@ Alfred.with_friendly_error do |alfred|
             author += ": #{deployment["Comment"]}"
           end
 
-          time = distance_of_time_in_words(DateTime.strptime(deployment['CreatedAt'], '%Y-%m-%dT%H:%M:%S%z'))
+          time = "#{distance_of_time_in_words(DateTime.strptime(deployment['CreatedAt'], '%Y-%m-%dT%H:%M:%S%z'))} ago"
+          if deployment.has_key?('CompletedAt')
+            length = distance_of_time_in_words(DateTime.strptime(deployment['CreatedAt'], '%Y-%m-%dT%H:%M:%S%z'), DateTime.strptime(deployment['CompletedAt'], '%Y-%m-%dT%H:%M:%S%z'))
+            time = "#{time} and #{length} long"
+          end
           instances = deployment["InstanceIds"].size
 
           fb.add_item({
             :uid      => "#{id}" ,
             :title    => "#{name}",
-            :subtitle => "#{time} ago: #{instances} Instances: #{author}",
+            :subtitle => "#{time}. To #{instances} instances by #{author}",
             :arg      => "#{id}" ,
             :valid    => "yes",
             :icon     => {:type => "default", :name => get_instance_icon(deployment["Status"]) }

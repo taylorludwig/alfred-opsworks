@@ -34,8 +34,6 @@ clears the cache for forced refresh of data.  Cache is used by default so real t
 
 ## Future Features
 - Settings for passing SSH options
-- Better description for deployments
-- Drill down into instances of deployments
 - Re-run a deployment
 - Open to OpsWork console for instances and deployments
 - ???

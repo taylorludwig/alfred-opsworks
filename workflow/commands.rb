@@ -30,13 +30,16 @@ Alfred.with_friendly_error do |alfred|
       end
 
 
-      time = distance_of_time_in_words(DateTime.strptime(command['CreatedAt'], '%Y-%m-%dT%H:%M:%S%z'))
-
+      time = "#{distance_of_time_in_words(DateTime.strptime(command['CreatedAt'], '%Y-%m-%dT%H:%M:%S%z'))} ago"
+      if command.has_key?('CompletedAt')
+        length = distance_of_time_in_words(DateTime.strptime(command['CreatedAt'], '%Y-%m-%dT%H:%M:%S%z'), DateTime.strptime(command['CompletedAt'], '%Y-%m-%dT%H:%M:%S%z'))
+        time = "#{time} and #{length} long"
+      end
 
       fb.add_item({
         :uid      => "#{command["CommandId"]}",
         :title    => "#{name}",
-        :subtitle => "#{time} ago",
+        :subtitle => "#{time}",
         :arg      => "#{command["CommandId"]}",
         :valid    => "yes",
         :icon     => {:type => "default", :name => get_instance_icon(command["Status"]) }
